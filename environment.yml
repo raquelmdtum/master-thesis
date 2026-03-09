@@ -6,25 +6,21 @@ channels:
 dependencies:
   - python=3.9
 
-  # ---- CORE STACK (LOCKED) ----
-  - numpy=1.24.4
-  - pandas=1.5.3
-  - scipy=1.10.1
-  - scikit-learn=1.2.2
+  - numpy=1.24
+  - pandas=1.5
+  - scipy=1.10
+  - scikit-learn=1.2
 
-  # ---- VISUALIZATION ----
-  - matplotlib
-  - seaborn
+  - matplotlib=3.7
+  - seaborn=0.12
   - ipympl
   - jupyter
 
-  # ---- GEO STACK (CRITICAL) ----
-  - geopandas=0.12.2
-  - shapely=1.8.5
+  - geopandas=0.12
+  - shapely=1.8
   - pyproj
   - fiona
 
-  # ---- UTILITIES ----
   - openpyxl
   - ffmpeg
   - statsmodels
@@ -33,7 +29,7 @@ dependencies:
   - pip
   - pip:
       - ipyfilechooser
-      - opencv-python
+      - opencv-python-headless
       - pythermalcomfort
       - unidecode
       - contextily

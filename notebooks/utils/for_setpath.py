@@ -44,12 +44,17 @@ def setpath_city(CITY='copenhagen'):
             sys.exit('The directories for the input and output data could not be found for Lisbon.')
 
     elif CITY.lower() == 'copenhagen':
+
         if user == 'raquel':
-            root = '/Users/raquel/Desktop/uni BA/4th semester/master-thesis'
-            scripts = root
+            root = '/mnt/raid/emotional_data_raquel'
+            scripts = '/home/s243636/master-thesis'
+
+        elif user == 's243636':   # server user
+            root = '/mnt/raid/emotional_data_raquel'
+            scripts = '/home/s243636/master-thesis'
+
         else:
             sys.exit('The directories for the input and output data could not be found for Copenhagen.')
-
     elif CITY.lower() == 'london':
         if user == 'joaop':
             try:
@@ -109,7 +114,7 @@ def setpath_city(CITY='copenhagen'):
         sys.exit(f"City '{CITY}' not recognized. Please choose from: lisbon, copenhagen, london, lansing.")
 
     # --- Define additional paths based on the root ---
-    sourcedata  = os.path.join(root, 'sourcedata')
+    sourcedata  = os.path.join(root, 'data')
     bidsroot    = os.path.join(root, 'bids')
     results     = os.path.join(root, 'results')
     derivatives = os.path.join(root, 'derivatives')
