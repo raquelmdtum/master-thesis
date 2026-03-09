@@ -1,0 +1,13 @@
+# data
+data/
+*.nedf
+*.avi
+*.bin
+
+# python
+__pycache__/
+.ipynb_checkpoints
+
+# environments
+.env
+*.log

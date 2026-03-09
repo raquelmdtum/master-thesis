@@ -1,0 +1,42 @@
+name: tese
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.9
+
+  # ---- CORE STACK (LOCKED) ----
+  - numpy=1.24.4
+  - pandas=1.5.3
+  - scipy=1.10.1
+  - scikit-learn=1.2.2
+
+  # ---- VISUALIZATION ----
+  - matplotlib
+  - seaborn
+  - ipympl
+  - jupyter
+
+  # ---- GEO STACK (CRITICAL) ----
+  - geopandas=0.12.2
+  - shapely=1.8.5
+  - pyproj
+  - fiona
+
+  # ---- UTILITIES ----
+  - openpyxl
+  - ffmpeg
+  - statsmodels
+  - geodatasets
+
+  - pip
+  - pip:
+      - ipyfilechooser
+      - opencv-python
+      - pythermalcomfort
+      - unidecode
+      - contextily
+      - biosppy
+      - PeakUtils
+      - git+https://github.com/emotional-cities/pluma-analysis.git@46cffe14b514d64a83483dbd07c93872ddc9577e
