@@ -6,7 +6,7 @@ This repository contains the code and analysis developed for my Master's thesis.
 
 The project investigates how urban environments influence emotional and cognitive responses using multimodal data collected in the eMOTIONAL Cities project, including mobile EEG, eye-tracking, physiological signals, and environmental measurements.
 
-## Setup
+## Setup 
 
 Create the environment:
 
