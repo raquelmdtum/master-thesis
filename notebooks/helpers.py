@@ -12,34 +12,65 @@ from pluma.sync.plotting import plot_clockcalibration_diagnosis
 import numpy as np
 import cv2 as cv
 
+from pluma.io import path_helper
+
+def safe_complexpath(path):
+    return str(path)
+
+path_helper.ensure_complexpath = safe_complexpath
+
 def load_dataset(root, schema, reload=True, ubx=True, unity=False, calibrate_ubx_to_harp=True, export_path=None):
-    # Path to the dataset. Can be local or remote.
+
+    import os
+    from pathlib import Path
+
+    # FIX 1: normalize root path
+    root = Path(root).resolve().as_posix()
+
     dataset = Dataset(
         root=root,
-        datasetlabel="FMUL_" + root.split("\\")[-1],
-        georeference= Georeference(),
-        schema=schema)  # Create a Dataset object that will contain the ingested data.
-    dataset.populate_streams(autoload=False)  # Add the "schema" that we want to load to our Dataset. If we want to load the whole dataset automatically, set autoload to True.
+        datasetlabel="FMUL_" + os.path.basename(root),
+        georeference=Georeference(),
+        schema=schema
+    )
+
+    dataset.populate_streams(autoload=False)
+
+    # FIX 2: normalize stream paths created by the schema
+    for stream in dataset._iter_schema_streams(dataset.streams):
+        try:
+            stream.root = Path(stream.root).as_posix()
+        except Exception:
+            pass
 
     if reload:
-        # We will just load every single stream at the same time. This might take a while if loading from AWS
-        # Some warnings will be printed if some sensors were not acquired during the experiment. These are normal and can be usually ignored.
-        # dataset.reload_streams(force_load=True) BC NO VALUE0 AVAILABLE FOR CPH
+
+        from pathlib import Path
+
         for stream in dataset._iter_schema_streams(dataset.streams):
             try:
+                # force root to be a normal filesystem path
+                if hasattr(stream, "root"):
+                    stream.root = Path(str(stream.root)).as_posix()
+
                 stream.load()
+
             except Exception as e:
                 print(f"Skipping stream {stream}: {e}")
+
         if ubx:
-            if calibrate_ubx_to_harp:
-                sync_lookup = dataset.calibrate_ubx_to_harp()
-                dataset.add_ubx_georeference()
-                dataset.reference_harp_to_ubx_time()
-                dataset.sync_lookup = sync_lookup
-            else:
-                dataset.add_ubx_georeference(calibrate_clock=False)
-                dataset.has_calibration = True
-                dataset.reference_harp_to_ubx_time()
+            try:
+                if calibrate_ubx_to_harp:
+                    sync_lookup = dataset.calibrate_ubx_to_harp
+                    dataset.add_ubx_georeference()
+                    dataset.reference_harp_to_ubx_time()
+                    dataset.sync_lookup = sync_lookup
+                else:
+                    dataset.add_ubx_georeference(calibrate_clock=False)
+                    dataset.has_calibration = True
+                    dataset.reference_harp_to_ubx_time()
+            except Exception as e:
+                print("Skipping UBX georeference:", e)
 
         if unity:
             unity_transform = dataset.streams.Unity.Transform
@@ -47,14 +78,14 @@ def load_dataset(root, schema, reload=True, ubx=True, unity=False, calibrate_ubx
             dataset.add_unity_georeference(unity_transform, unity_georeference)
 
         if export_path is not None:
-            # We can export the dataset as a .pickle file.
-            # In order to not having to run this routine multiple times, the output of the
-            # ingestion can be saved as a pickle file to be loaded later. E.g.:
-            dataset.export_dataset(filename=f"{export_path}\dataset.pickle")
+            dataset.export_dataset(
+                filename=os.path.join(export_path, "dataset.pickle")
+            )
 
     else:
-        dataset = Dataset.import_dataset(f"{root}\dataset.pickle")
-        # ... and reimport it at a later point.
+        dataset = Dataset.import_dataset(
+            os.path.join(root, "dataset.pickle")
+        )
 
     return dataset
 
