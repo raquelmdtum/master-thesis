@@ -61,7 +61,7 @@ def load_dataset(root, schema, reload=True, ubx=True, unity=False, calibrate_ubx
         if ubx:
             try:
                 if calibrate_ubx_to_harp:
-                    sync_lookup = dataset.calibrate_ubx_to_harp
+                    sync_lookup = dataset.calibrate_ubx_to_harp()
                     dataset.add_ubx_georeference()
                     dataset.reference_harp_to_ubx_time()
                     dataset.sync_lookup = sync_lookup

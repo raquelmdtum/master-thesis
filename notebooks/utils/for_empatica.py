@@ -3,6 +3,8 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import os
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -91,14 +93,14 @@ def export_resampled_empatica_data(input_dir, output_dir):
 
     # Process datetime columns
     print("Processing datetime columns...")
-    eda_subj['DateTime'] = pd.to_datetime(eda_subj['E4_Seconds'].str[:-3], format="%Y-%m-%d %H:%M:%S.%f")
-    bvp_subj['DateTime'] = pd.to_datetime(bvp_subj['E4_Seconds'].str[:-3], format="%Y-%m-%d %H:%M:%S.%f")
-    ibi_subj['DateTime'] = pd.to_datetime(ibi_subj['E4_Seconds'].str[:-3], format="%Y-%m-%d %H:%M:%S.%f")
-    hr_subj['DateTime'] = pd.to_datetime(hr_subj['E4_Seconds'].str[:-3], format="%Y-%m-%d %H:%M:%S.%f")
-    acc_subj['DateTime'] = pd.to_datetime(acc_subj['E4_Seconds'].str[:-3], format="%Y-%m-%d %H:%M:%S.%f")
-    temp_subj['DateTime'] = pd.to_datetime(temp_subj['E4_Seconds'].str[:-3], format="%Y-%m-%d %H:%M:%S.%f")
+    eda_subj['DateTime'] = pd.to_datetime(eda_subj['E4_Seconds'])
+    bvp_subj['DateTime'] = pd.to_datetime(bvp_subj['E4_Seconds'])
+    ibi_subj['DateTime'] = pd.to_datetime(ibi_subj['E4_Seconds'])
+    hr_subj['DateTime'] = pd.to_datetime(hr_subj['E4_Seconds'])
+    acc_subj['DateTime'] = pd.to_datetime(acc_subj['E4_Seconds'])
+    temp_subj['DateTime'] = pd.to_datetime(temp_subj['E4_Seconds'])
     if hrlead:
-        hrlead_subj['DateTime'] = pd.to_datetime(temp_subj['Seconds'], format="%Y-%m-%d %H:%M:%S.%f")
+        hrlead_subj['DateTime'] = pd.to_datetime(hrlead_subj['Seconds'], format="%Y-%m-%d %H:%M:%S.%f")
 
     # Rename columns for consistency
     eda_subj.rename(columns={'Value': 'Values'}, inplace=True)
@@ -117,18 +119,26 @@ def export_resampled_empatica_data(input_dir, output_dir):
     b, a = scipy.signal.butter(5, 0.05, btype='highpass', fs=fs_eda)
     eda_subj['NEW_EDA'] = scipy.signal.filtfilt(b, a, eda_subj['Filtered'])
 
-    # Plot EDA signals
-    print("Plotting EDA signals...")
-    plt.figure(figsize=(15, 7))
-    plt.plot(eda_subj['DateTime'], eda_subj['Values'], label='Raw EDA')
-    plt.plot(eda_subj['DateTime'], eda_subj['Filtered'], label='Filtered EDA')
-    plt.plot(eda_subj['DateTime'], eda_subj['NEW_EDA'], label='High-pass Filtered EDA')
-    plt.legend()
-    plt.xlabel('Time')
-    plt.ylabel('EDA Value')
-    plt.title('EDA Signal Processing')
-    plt.savefig(os.path.join(output_dir, 'eda_signals.png'), dpi=300)
-    plt.close()
+    # Plot EDA signals (downsample for plotting stability)
+    # print("Plotting EDA signals...")
+
+    # step = 10  # plot every 10th point
+
+    # x = eda_subj['DateTime'].astype("int64").values[::step] / 1e9
+    # y1 = eda_subj['Values'].values[::step]
+    # y2 = eda_subj['Filtered'].values[::step]
+    # y3 = eda_subj['NEW_EDA'].values[::step]
+
+    # plt.figure(figsize=(15,7))
+    # plt.plot(x, y1, label='Raw EDA')
+    # plt.plot(x, y2, label='Filtered EDA')
+    # plt.plot(x, y3, label='High-pass Filtered EDA')
+    # plt.legend()
+    # plt.xlabel('Time')
+    # plt.ylabel('EDA Value')
+    # plt.title('EDA Signal Processing')
+    # plt.savefig(os.path.join(output_dir,'eda_signals.png'), dpi=300)
+    # plt.close()
 
     # Process IBI data
     print("Processing IBI data...")
@@ -136,19 +146,19 @@ def export_resampled_empatica_data(input_dir, output_dir):
     ibi_subj['bpm'] = 60 / ibi_subj['IBI']
 
     # Plot HR signals (from IBI and E4 HR)
-    print("Plotting HR signals...")
-    plt.figure(figsize=(15, 7))
-    plt.plot(hr_subj['DateTime'], hr_subj['Values'], label='E4 HR')
-    plt.plot(ibi_subj['DateTime'], ibi_subj['IBI'], label='E4 IBI')
-    if hrlead:
-        plt.plot(hrlead_subj['DateTime'], hrlead_subj['Bpm'], label='Hear Rate (3-lead)')
-    plt.xlabel('Time')
-    plt.legend()
-    plt.xlabel('Time')
-    plt.ylabel('Heart Rate (bpm)')
-    plt.title('Heart Rate Comparison (E4 HR and E4 IBI)')
-    plt.savefig(os.path.join(output_dir, 'hr_signals.png'), dpi=300)
-    plt.close()
+    # print("Plotting HR signals...")
+    # plt.figure(figsize=(15, 7))
+    # plt.plot(hr_subj['DateTime'].values, hr_subj['Values'].values, label='E4 HR')
+    # plt.plot(ibi_subj['DateTime'].values, ibi_subj['IBI'].values, label='E4 IBI')
+    # if hrlead:
+    #     plt.plot(hrlead_subj['DateTime'].values, hrlead_subj['Bpm'].values, label='Hear Rate (3-lead)')
+    # plt.xlabel('Time')
+    # plt.legend()
+    # plt.xlabel('Time')
+    # plt.ylabel('Heart Rate (bpm)')
+    # plt.title('Heart Rate Comparison (E4 HR and E4 IBI)')
+    # plt.savefig(os.path.join(output_dir, 'hr_signals.png'), dpi=300)
+    # plt.close()
 
     # Resample data to 1Hz
     print("Resampling data to 1Hz...")
@@ -182,19 +192,20 @@ def export_resampled_empatica_data(input_dir, output_dir):
 
 
     # Plot merged data
-    print("Plotting merged data...")
-    plt.figure(figsize=(15, 7))
-    plt.plot(data_all['DateTime'], data_all['E4_HR'], label='E4 HR')
-    plt.plot(data_all['DateTime'], data_all['E4_IBI'], label='E4 IBI')
-    plt.plot(data_all['DateTime'], data_all['E4_EDA_RAW'], label='Raw EDA')
-    plt.plot(data_all['DateTime'], data_all['E4_TEMP'], label='Temperature')
-    plt.plot(data_all['DateTime'], data_all['HR'], label='HR')
-    plt.legend()
-    plt.xlabel('Time')
-    plt.ylabel('Values')
-    plt.title('Merged Physiological Data')
-    plt.savefig(os.path.join(output_dir, 'merged_data.png'), dpi=300)
-    plt.close()
+    # print("Plotting merged data...")
+    # plt.figure(figsize=(15, 7))
+    # plt.plot(data_all['DateTime'].values, data_all['E4_HR'].values, label='E4 HR')
+    # plt.plot(data_all['DateTime'].values, data_all['E4_IBI'].values, label='E4 IBI')
+    # plt.plot(data_all['DateTime'].values, data_all['E4_EDA_RAW'].values, label='Raw EDA')
+    # plt.plot(data_all['DateTime'].values, data_all['E4_TEMP'].values, label='Temperature')
+    # if hrlead:
+    #     plt.plot(data_all['DateTime'].values, data_all['HR'].values, label='HR')
+    # plt.legend()
+    # plt.xlabel('Time')
+    # plt.ylabel('Values')
+    # plt.title('Merged Physiological Data')
+    # plt.savefig(os.path.join(output_dir, 'merged_data.png'), dpi=300)
+    # plt.close()
 
     # Save combined data to CSV
     print("Saving combined data to CSV...")
