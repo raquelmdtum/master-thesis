@@ -31,17 +31,23 @@ The code and notebooks in this repository access the dataset directly from this 
 
 ```
 notebooks/
+```
 Contains the main notebooks used throughout the thesis for dataset exploration, preprocessing, and analysis. The primary pipeline (`do_process.ipynb`) integrates the different data modalities (physiological signals, eye-tracking, environmental measurements, and EEG) into a unified dataset for subsequent analysis.
 
+```
 utils/
+```
 Includes modular utility scripts that support the preprocessing pipeline. These modules implement functions for processing the different data modalities, handling participant metadata, and providing general helper functionality used across the project.
 
+```
 schemas/
+```
 Defines the data schemas used to interpret the multimodal acquisition streams. These schemas specify how the sensor data are structured and synchronized when loading the recordings.
 
-helpers.py / modules.py
-Provide shared helper functions and import wrappers used across notebooks to organize the codebase and simplify access to the utility modules.
 ```
+helpers.py / modules.py
+```
+Provide shared helper functions and import wrappers used across notebooks to organize the codebase and simplify access to the utility modules.
 
 ## Status
 
