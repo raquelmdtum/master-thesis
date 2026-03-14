@@ -19,6 +19,10 @@ def export_gaze_to_csv(dataset, outdir):
     video_frames = dataset.streams.PupilLabs.DecodedFrames.data
     video_frames = video_frames[video_frames.Value != 0]
 
+    # IMPORTANT: merge_asof requires sorted indices
+    gaze_data = gaze_data.sort_index()
+    video_frames = video_frames.sort_index()
+
     gaze_correlation = pd.merge_asof(video_frames,gaze_data,left_index=True,right_index=True)
 
     gaze_correlation.to_csv(os.path.join(outdir, 'gaze.csv'))
