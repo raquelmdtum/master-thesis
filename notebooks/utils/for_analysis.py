@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import biosppy
 import os
 import datetime
+from shapely import wkt
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                          PROCESSING FUNCTIONS                                 #
@@ -174,6 +175,10 @@ def do_analysis_design(results_dir, design, **kwargs):
             # Concatenate all subject data for this path
             big_df = pd.concat(dataframes, ignore_index=True)
 
+            if 'longitude_corrected' in big_df.columns and 'latitude_corrected' in big_df.columns:
+                big_df['longitude'] = big_df['longitude_corrected']
+                big_df['latitude']  = big_df['latitude_corrected']
+
             # Group by (longitude, latitude) and compute the nan-mean of numeric columns
             if ('longitude' not in big_df.columns) or ('latitude' not in big_df.columns):
                 print(f"No 'longitude' or 'latitude' in data for {desired_session}. Storing raw.")
@@ -185,9 +190,23 @@ def do_analysis_design(results_dir, design, **kwargs):
             numeric_cols = big_df.select_dtypes(include=[np.number]).columns.tolist()
 
             # Transform geometry to longitude and latitude columns
+            # if 'geometry' in big_df.columns:
+            #     big_df['longitude'] = big_df['geometry'].apply(lambda x: x.x)
+            #     big_df['latitude'] = big_df['geometry'].apply(lambda x: x.y)
+
             if 'geometry' in big_df.columns:
-                big_df['longitude'] = big_df['geometry'].apply(lambda x: x.x)
-                big_df['latitude'] = big_df['geometry'].apply(lambda x: x.y)
+                def get_xy(x):
+                    if isinstance(x, str):
+                        try:
+                            g = wkt.loads(x)
+                            return g.x, g.y
+                        except:
+                            return np.nan, np.nan
+                    return np.nan, np.nan
+
+                coords = big_df['geometry'].apply(get_xy)
+                big_df['longitude'] = coords.apply(lambda x: x[0])
+                big_df['latitude']  = coords.apply(lambda x: x[1])
 
             # Group by GPS coordinate
             grouped = (
