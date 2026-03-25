@@ -1,7 +1,9 @@
 # supp
 supp/
 fulldata/
-fulldata_analysis
+fulldata_analysis/
+eeg_pipeline
+matlab_R2025b_Linux
 
 # data
 data/
