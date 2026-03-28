@@ -93,12 +93,12 @@ def export_resampled_empatica_data(input_dir, output_dir):
 
     # Process datetime columns
     print("Processing datetime columns...")
-    eda_subj['DateTime'] = pd.to_datetime(eda_subj['E4_Seconds'])
-    bvp_subj['DateTime'] = pd.to_datetime(bvp_subj['E4_Seconds'])
-    ibi_subj['DateTime'] = pd.to_datetime(ibi_subj['E4_Seconds'])
-    hr_subj['DateTime'] = pd.to_datetime(hr_subj['E4_Seconds'])
-    acc_subj['DateTime'] = pd.to_datetime(acc_subj['E4_Seconds'])
-    temp_subj['DateTime'] = pd.to_datetime(temp_subj['E4_Seconds'])
+    eda_subj['DateTime'] = pd.to_datetime(eda_subj['Seconds'])
+    bvp_subj['DateTime'] = pd.to_datetime(bvp_subj['Seconds'])
+    ibi_subj['DateTime'] = pd.to_datetime(ibi_subj['Seconds'])
+    hr_subj['DateTime'] = pd.to_datetime(hr_subj['Seconds'])
+    acc_subj['DateTime'] = pd.to_datetime(acc_subj['Seconds'])
+    temp_subj['DateTime'] = pd.to_datetime(temp_subj['Seconds'])
     if hrlead:
         hrlead_subj['DateTime'] = pd.to_datetime(hrlead_subj['Seconds'], format="%Y-%m-%d %H:%M:%S.%f")
 
@@ -206,6 +206,19 @@ def export_resampled_empatica_data(input_dir, output_dir):
     # plt.title('Merged Physiological Data')
     # plt.savefig(os.path.join(output_dir, 'merged_data.png'), dpi=300)
     # plt.close()
+
+    # Rename columns to match expected format
+    data_all = data_all.rename(columns={
+        "E4_IBI": "E4_HR_IBI",
+        "E4_TEMP": "TEMP",
+        "E4_EDA_RAW": "EDA_RAW",
+        "E4_EDA_PHASIC": "EDA_PHASIC",
+        "E4_ACC_X": "AccX",
+        "E4_ACC_Y": "AccY",
+        "E4_ACC_Z": "AccZ",
+        "E4_ACC_MAGNITUDE": "Magnitude",
+        "E4_ACC_BVP": "BVP_Values"
+    })
 
     # Save combined data to CSV
     print("Saving combined data to CSV...")
