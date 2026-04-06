@@ -148,7 +148,7 @@ def geodata_to_csv(dataset, participant_name, session_name, output):
                 elif path_num == '02':
                     shp_filename = "Path2_Norreport.shp"
                 elif path_num == '03':
-                    shp_filename = "Path3_Nordahvn.shp"
+                    shp_filename = "Path3_Nordhavn.shp"
                 elif path_num == '04':
                     shp_filename = "Path4_Hellerup.shp"
                 # Correct GPS data
