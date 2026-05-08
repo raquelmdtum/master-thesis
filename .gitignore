@@ -10,6 +10,7 @@ data/
 *.nedf
 *.avi
 *.bin
+*.gpkg
 
 # python
 __pycache__/
