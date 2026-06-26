@@ -19,3 +19,6 @@ __pycache__/
 # environments
 .env
 *.log
+
+# random
+do_eye.ipynb
