@@ -45,6 +45,10 @@ The repository is flat, meaning that all notebooks, scripts, and supporting file
 
 **`do_results.ipynb`** — Primary analysis notebook. Runs all three analyses reported in Section 6: linear mixed-effects models, XGBoost with SHAP, and leave-one-participant-out (LOPO) cross-validation, across six physiological outcomes (HR, RMSSD, alpha, theta, tonic EDA, phasic EDA).
 
+### ECG Quality Diagnostics
+
+**`ecg_signals/`** — ECG quality assessment outputs used to support participant inclusion decisions. Includes session-level HR traces (`ecg_hr_quality_segments.pdf`), overall quality summaries (`ecg_hr_quality_overview.pdf`), a sensitivity analysis across detection thresholds (`ecg_sensitivity_test.csv`), and a per-session summary excluding C-grade segments (`ecg_noC_summary.csv`). Plots show raw, validated, and smoothed HR with quality grade counts (A = clean, B = borderline, C = rejected).
+
 ### Utilities & Schemas
 
 **`utils/`** — Modular utility scripts supporting the preprocessing pipeline. Implements functions for processing each data modality (EDA, ECG, EEG, GPS, climate, eye-tracking) and general helper functionality used across notebooks.
