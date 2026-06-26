@@ -21,4 +21,4 @@ __pycache__/
 *.log
 
 # random
-do_eye.ipynb
+notebooks/do_eye.ipynb

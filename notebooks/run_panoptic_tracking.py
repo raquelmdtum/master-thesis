@@ -5,13 +5,8 @@ import pandas as pd
 import numpy as np
 import argparse
 
-from transformers import (
-    Mask2FormerImageProcessor,
-    Mask2FormerForUniversalSegmentation
-)
-
+from transformers import (Mask2FormerImageProcessor,Mask2FormerForUniversalSegmentation)
 from ultralytics import YOLO
-
 
 # ==================================================
 # ARGUMENTS
@@ -19,9 +14,7 @@ from ultralytics import YOLO
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--participant",type=str,required=True)
-
 parser.add_argument("--session",type=str,required=True)
-
 args = parser.parse_args()
 
 participant = args.participant
@@ -47,16 +40,11 @@ gaze_path = os.path.join(
 )
 
 if not os.path.exists(gaze_path):
-
-    raise FileNotFoundError(
-        f"Gaze file not found:\n{gaze_path}"
-    )
+    raise FileNotFoundError(f"Gaze file not found:\n{gaze_path}")
 
 # Converts timestamp column into datetime objects
 aligned = pd.read_csv(gaze_path,parse_dates=["Seconds"])
-
 aligned = aligned.rename(columns={"Seconds": "timestamp"})
-
 aligned = aligned.sort_values(["frame", "timestamp"]).reset_index(drop=True)
 
 # Groups gaze rows by video frame
@@ -65,13 +53,9 @@ gaze_groups = aligned.groupby("frame")
 # ==================================================
 # FIND VIDEO
 # ==================================================
-participant_path = os.path.join(
-    data_root,
-    participant
-)
+participant_path = os.path.join(data_root,participant)
 
 if not os.path.exists(participant_path):
-
     raise FileNotFoundError(f"Missing participant path:\n{participant_path}")
 
 session_path = None
@@ -79,19 +63,15 @@ session_path = None
 for s in os.listdir(participant_path):
 
     if session_name in s:
-
         session_path = os.path.join(participant_path,s)
-
         break
 
 if session_path is None:
-
     raise FileNotFoundError(f"Session not found:\n{session_name}")
 
 video_path = os.path.join(session_path,"pupil_video.avi")
 
 if not os.path.exists(video_path):
-
     raise FileNotFoundError(f"Video not found:\n{video_path}")
 
 # Video stream for frame-by-frame reading
@@ -111,15 +91,10 @@ print(f"\nUsing device: {device}")
 # ==================================================
 # LOAD MASK2FORMER
 # ==================================================
-processor = Mask2FormerImageProcessor.from_pretrained(
-    "facebook/mask2former-swin-large-cityscapes-panoptic"
-)
+processor = Mask2FormerImageProcessor.from_pretrained("facebook/mask2former-swin-large-cityscapes-panoptic")
 
 # Loads pretrained Mask2Former model
-seg_model = Mask2FormerForUniversalSegmentation.from_pretrained(
-    "facebook/mask2former-swin-large-cityscapes-panoptic"
-).to(device)
-
+seg_model = Mask2FormerForUniversalSegmentation.from_pretrained("facebook/mask2former-swin-large-cityscapes-panoptic").to(device)
 seg_model.eval()
 
 # Maps class IDs into readable labels
@@ -155,7 +130,6 @@ frame_idx = 0
 # ==================================================
 # Processes the entire video sequentially
 while True:
-
     ret, frame = cap.read()
 
     if not ret:
@@ -169,22 +143,13 @@ while True:
 
     gaze_rows = gaze_groups.get_group(frame_idx)
 
-    frame_rgb = cv.cvtColor(
-        frame,
-        cv.COLOR_BGR2RGB
-    )
+    frame_rgb = cv.cvtColor(frame,cv.COLOR_BGR2RGB)
 
-    gray = cv.cvtColor(
-        frame,
-        cv.COLOR_BGR2GRAY
-    )
+    gray = cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
 
     h, w = gray.shape
 
-    print(
-        f"Processing frame {frame_idx} "
-        f"({len(gaze_rows)} gaze samples)"
-    )
+    print(f"Processing frame {frame_idx} "f"({len(gaze_rows)} gaze samples)")
 
     # ==================================================
     # PANOPTIC SEGMENTATION
@@ -200,7 +165,6 @@ while True:
     }
 
     with torch.no_grad():
-
         outputs = seg_model(**inputs)
 
     # Converts raw tensors into segmentation maps and object metadata
@@ -224,10 +188,7 @@ while True:
     # FULL FRAME CONTEXT
     # ==================================================
     # Computing what proportion of the scene is each class
-    unique_ids, counts = np.unique(
-        seg_map,
-        return_counts=True
-    )
+    unique_ids, counts = np.unique(seg_map,return_counts=True)
 
     frame_context = {}
 
@@ -330,11 +291,7 @@ while True:
                 })
 
     except Exception as e:
-
-        print(
-            f"Tracking failed at frame "
-            f"{frame_idx}: {e}"
-        )
+        print(f"Tracking failed at frame "f"{frame_idx}: {e}")
 
     # ==================================================
     # OPTICAL FLOW
@@ -384,22 +341,12 @@ while True:
         # Gets the segment under gaze
         segment_id = int(seg_map[y, x])
 
-        segment = segment_dict.get(
-            segment_id,
-            None
-        )
-
+        segment = segment_dict.get(segment_id,None)
         segmentation_label = "unknown"
-
         panoptic_segment_id = None
 
         if segment is not None:
-
-            segmentation_label = id2label.get(
-                segment["label_id"],
-                "unknown"
-            )
-
+            segmentation_label = id2label.get(segment["label_id"],"unknown")
             panoptic_segment_id = segment_id
 
         # ==================================================
@@ -477,12 +424,7 @@ while True:
             models_agree = (segmentation_label == tracked_object_label)
 
             if not models_agree:
-
-                conflict_type = (
-                    f"{segmentation_label}"
-                    f"_vs_"
-                    f"{tracked_object_label}"
-                )
+                conflict_type = (f"{segmentation_label}"f"_vs_"f"{tracked_object_label}")
 
         # ==================================================
         # LOCAL GAZE CONTEXT
@@ -494,15 +436,9 @@ while True:
         gy2 = min(h, y + PATCH_RADIUS)
 
         # Extracts segmentation patch around gaze
-        local_patch = seg_map[
-            gy1:gy2,
-            gx1:gx2
-        ]
+        local_patch = seg_map[gy1:gy2,gx1:gx2]
 
-        unique_local, counts_local = np.unique(
-            local_patch,
-            return_counts=True
-        )
+        unique_local, counts_local = np.unique(local_patch,return_counts=True)
 
         gaze_context = {}
 
@@ -518,15 +454,8 @@ while True:
             if segment is None:
                 continue
 
-            label = id2label.get(
-                segment["label_id"],
-                "unknown"
-            )
-
-            percentage = round(
-                100 * count / total_local,
-                2
-            )
+            label = id2label.get(segment["label_id"],"unknown")
+            percentage = round(100 * count / total_local,2)
 
             # Stores local semantic composition
             gaze_context[label] = (
