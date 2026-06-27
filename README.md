@@ -39,8 +39,6 @@ The repository is flat, meaning that all notebooks, scripts, and supporting file
 
 **`do_eyetracking.ipynb`** — Preprocesses Pupil Labs gaze data and prepares frame-aligned fixation features. Feeds into `run_panoptic_tracking.py`. Methodology described in Section 4.1.
 
-**`do_statistics.ipynb`** — Exploratory modelling notebook used during development. Contains GLM and LMM prototypes and spatial aggregation utilities. Informed the final modelling decisions but is not the source of reported results.
-
 **`do_analysis.ipynb`** — Produces individual-level multimodal time series plots for qualitative inspection, anchored automatically to the peak EDA event per session.
 
 **`do_results.ipynb`** — Primary analysis notebook. Runs all three analyses reported in Section 6: linear mixed-effects models, XGBoost with SHAP, and leave-one-participant-out (LOPO) cross-validation, across six physiological outcomes (HR, RMSSD, alpha, theta, tonic EDA, phasic EDA).
